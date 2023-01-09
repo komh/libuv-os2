@@ -30,7 +30,11 @@
 #include <stddef.h> /* NULL */
 #include <stdlib.h>
 #include <string.h>
+#ifndef __OS2__
 #include <net/if.h> /* if_indextoname() */
+#else
+#include <os2compat/net/if.h> /* if_indextoname() */
+#endif
 
 /* EAI_* constants. */
 #include <netdb.h>
