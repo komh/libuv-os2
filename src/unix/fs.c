@@ -392,6 +392,11 @@ static ssize_t uv__fs_open(uv_fs_t* req) {
     uv_rwlock_rdlock(&req->loop->cloexec_lock);
 
   r = open(req->path, req->flags, req->mode);
+#ifdef __OS2__
+  /* Convert ERANGE to ENAMETOOLONG for the compatibility. */
+  if (r == -1 && errno == ERANGE)
+    errno = ENAMETOOLONG;
+#endif
 
   /* In case of failure `uv__cloexec` will leave error in `errno`,
    * so it is enough to just set `r` to `-1`.
