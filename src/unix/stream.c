@@ -849,7 +849,11 @@ static int uv__try_write(uv_stream_t* stream,
     }
 
     do
+#ifndef __OS2__
       n = sendmsg(uv__stream_fd(stream), &msg, 0);
+#else
+      n = uv__os2_sendfd(uv__stream_fd(stream), &msg, 0);
+#endif
     while (n == -1 && errno == EINTR);
   } else {
     do

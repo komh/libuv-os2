@@ -535,6 +535,7 @@ libuv_la_LDFLAGS += -los2compat
 libuv_la_SOURCES += src/unix/no-fsevents.c \
                     src/unix/no-proctitle.c \
                     src/unix/os2.c \
+                    src/unix/os2-send-recv-msg.c \
                     src/unix/posix-poll.c
 endif
 

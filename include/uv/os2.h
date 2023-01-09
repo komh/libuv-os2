@@ -136,4 +136,17 @@ static int uv__os2_pipe(int *fds) {
 #undef IOV_MAX
 #define IOV_MAX 16
 
+/* OS/2 sendmsg()/recvmsg() alter iov_base and iov_len, and do not support
+ * SCM_RIGHTS
+ */
+
+int uv__os2_sendmsg(int s, struct msghdr *msg, int flags);
+#define sendmsg(s, m, f) uv__os2_sendmsg((s), (m), (f))
+
+int uv__os2_recvmsg(int s, struct msghdr *msg, int flags);
+#define recvmsg(s, m, f) uv__os2_recvmsg((s), (m), (f))
+
+int uv__os2_sendfd(int s, struct msghdr *msg, int flags);
+int uv__os2_recvfd(int s, struct msghdr *msg, int flags);
+
 #endif /* UV_OS2_H */

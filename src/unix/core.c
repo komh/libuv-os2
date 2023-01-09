@@ -689,7 +689,11 @@ ssize_t uv__recvmsg(int fd, struct msghdr* msg, int flags) {
   int* pfd;
   int* end;
   ssize_t rc;
+#ifndef __OS2__
   rc = recvmsg(fd, msg, flags);
+#else
+  rc = uv__os2_recvfd(fd, msg, flags);
+#endif
   if (rc == -1)
     return UV__ERR(errno);
   if (msg->msg_controllen == 0)
