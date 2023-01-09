@@ -25,7 +25,7 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#if !defined(_WIN32) && !defined(_AIX)
+#if !defined(_WIN32) && !defined(_AIX) && !defined(__OS2__)
 #include <poll.h>
 #endif
 
