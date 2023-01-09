@@ -187,6 +187,13 @@ void uv_pipe_connect(uv_connect_t* req,
   int r;
 
 #ifdef __OS2__
+  struct stat st;
+
+  if (stat(name, &st) == 0 && !S_ISSOCK(st.st_mode)) {
+    err = -ENOTSOCK;
+    goto out;
+  }
+
   if (strncmp("\\socket\\", name, 8)) {
     err = -ENOENT;
     goto out;
