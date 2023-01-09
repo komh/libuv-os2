@@ -833,10 +833,13 @@ static void check_utime(const char* path,
     ASSERT_DOUBLE_EQ(atime, (long) atime);
     ASSERT_DOUBLE_EQ(mtime, (long) atime);
 #endif
+#ifndef __OS2__
+    /* OS/2 file timestamp is in even seconds. */
     if (atime > 0 || (long) atime == atime)
       ASSERT_EQ(s->st_atim.tv_sec, (long) atime);
     if (mtime > 0 || (long) mtime == mtime)
       ASSERT_EQ(s->st_mtim.tv_sec, (long) mtime);
+#endif
     ASSERT_GE(s->st_atim.tv_sec, (long) atime - 1);
     ASSERT_GE(s->st_mtim.tv_sec, (long) mtime - 1);
     ASSERT_LE(s->st_atim.tv_sec, (long) atime);
