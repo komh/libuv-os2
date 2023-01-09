@@ -529,6 +529,11 @@ libuv_la_SOURCES += src/unix/no-proctitle.c \
                     src/unix/sunos.c
 endif
 
+if OS2
+uvinclude_HEADERS += include/uv/os2.h
+libuv_la_LDFLAGS += -los2compat
+endif
+
 if OS390
 libuv_la_CFLAGS += -D_UNIX03_THREADS \
                    -D_UNIX03_SOURCE \
