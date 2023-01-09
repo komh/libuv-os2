@@ -37,7 +37,11 @@
 #include <pwd.h>
 
 #if !defined(__MVS__)
+#ifndef __OS2__
 #include <semaphore.h>
+#else
+#include <os2compat/semaphore.h>
+#endif
 #include <sys/param.h> /* MAXHOSTNAMELEN on Linux and the BSDs */
 #endif
 #include <pthread.h>
