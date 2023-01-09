@@ -73,6 +73,11 @@ void platform_init(int argc, char **argv) {
   setvbuf(stderr, NULL, _IONBF, 0);
   signal(SIGPIPE, SIG_IGN);
   snprintf(executable_path, sizeof(executable_path), "%s", argv[0]);
+
+#ifdef __OS2__
+  extern int _fmode_bin;
+  _fmode_bin = 1;   /* Open in binary mode by default. */
+#endif
 }
 
 
