@@ -1890,7 +1890,7 @@ TEST_IMPL(fs_chown) {
   uv_run(loop, UV_RUN_DEFAULT);
   ASSERT(fchown_cb_count == 1);
 
-#ifndef __HAIKU__
+#if !defined(__HAIKU__) && !defined(__OS2__)
   /* Haiku doesn't support hardlink */
   /* sync link */
   r = uv_fs_link(NULL, &req, "test_file", "test_file_link", NULL);
