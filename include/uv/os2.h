@@ -112,4 +112,21 @@ static const struct in6_addr in6addr_any =
 
 #include <os2compat/dirent.h>
 
+/* OS/2 select() does not support handles of pipe() */
+
+#include <io.h>
+
+__attribute__((unused))
+static int uv__os2_pipe(int *fds) {
+  int r;
+
+  r = socketpair(AF_UNIX, SOCK_STREAM, 0, fds);
+
+  shutdown(fds[0], SHUT_WR);
+  shutdown(fds[1], SHUT_RD);
+
+  return r;
+}
+#define pipe(fds) uv__os2_pipe(fds)
+
 #endif /* UV_OS2_H */
