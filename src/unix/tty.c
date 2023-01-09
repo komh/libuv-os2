@@ -125,6 +125,9 @@ static int uv__tty_is_slave(const int fd) {
     abort();
 
   result = (pts == major(sb.st_rdev));
+#elif defined(__OS2__)
+  /* TODO: FIXME */
+  result = 0;
 #else
   /* Fallback to ptsname
    */
@@ -179,9 +182,11 @@ int uv_tty_init(uv_loop_t* loop, uv_tty_t* tty, int fd, int unused) {
      * master/slave pair (Linux). Therefore check if the fd points to a
      * slave device.
      */
+#ifndef __OS2__
     if (uv__tty_is_slave(fd) && ttyname_r(fd, path, sizeof(path)) == 0)
       r = uv__open_cloexec(path, mode | O_NOCTTY);
     else
+#endif
       r = -1;
 
     if (r < 0) {
@@ -273,12 +278,15 @@ static void uv__tty_make_raw(struct termios* tio) {
    */
   tio->c_cc[VMIN] = 1;
   tio->c_cc[VTIME] = 0;
+#elif defined(__OS2__)
+  /* TODO: FIXME */
 #else
   cfmakeraw(tio);
 #endif /* #ifdef __sun */
 }
 
 int uv_tty_set_mode(uv_tty_t* tty, uv_tty_mode_t mode) {
+#ifndef __OS2__
   struct termios tmp;
   int fd;
   int rc;
@@ -327,10 +335,16 @@ int uv_tty_set_mode(uv_tty_t* tty, uv_tty_mode_t mode) {
     tty->mode = mode;
 
   return rc;
+#else
+  /* TODO: FIXME */
+  errno = ENOSYS;
+  return UV__ERR(errno);
+#endif
 }
 
 
 int uv_tty_get_winsize(uv_tty_t* tty, int* width, int* height) {
+#ifndef __OS2__
   struct winsize ws;
   int err;
 
@@ -345,6 +359,11 @@ int uv_tty_get_winsize(uv_tty_t* tty, int* width, int* height) {
   *height = ws.ws_row;
 
   return 0;
+#else
+  /* TODO: FIXME */
+  errno = ENOSYS;
+  return UV__ERR(errno);
+#endif
 }
 
 
