@@ -1639,6 +1639,9 @@ TEST_IMPL(fs_chmod) {
   ASSERT(req.result == sizeof(test_buf));
   uv_fs_req_cleanup(&req);
 
+#ifndef __OS2__
+  /* OS/2 does not support chmod() on an opened file. */
+
 #ifndef _WIN32
   /* Make the file write-only */
   r = uv_fs_chmod(NULL, &req, "test_file", 0200, NULL);
@@ -1656,6 +1659,7 @@ TEST_IMPL(fs_chmod) {
   uv_fs_req_cleanup(&req);
 
   check_permission("test_file", 0400);
+#endif
 
   /* Make the file read+write with sync uv_fs_fchmod */
   r = uv_fs_fchmod(NULL, &req, file, 0600, NULL);
@@ -1664,6 +1668,9 @@ TEST_IMPL(fs_chmod) {
   uv_fs_req_cleanup(&req);
 
   check_permission("test_file", 0600);
+
+#ifndef __OS2__
+  /* OS/2 does not support chmod() on an opened file. */
 
 #ifndef _WIN32
   /* async chmod */
@@ -1687,6 +1694,7 @@ TEST_IMPL(fs_chmod) {
   ASSERT(r == 0);
   uv_run(loop, UV_RUN_DEFAULT);
   ASSERT(chmod_cb_count == 1);
+#endif
 
   /* async fchmod */
   {
