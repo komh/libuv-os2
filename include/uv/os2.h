@@ -108,4 +108,8 @@ struct ipv6_mreq
 static const struct in6_addr in6addr_any =
     { { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 } };
 
+/* OS/2 lacks scandir() and alphasort() */
+
+#include <os2compat/dirent.h>
+
 #endif /* UV_OS2_H */

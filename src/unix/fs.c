@@ -531,10 +531,16 @@ done:
 }
 
 
-#if defined(__APPLE__) && !defined(MAC_OS_X_VERSION_10_8)
+#if defined(__APPLE__) && !defined(MAC_OS_X_VERSION_10_8) || defined(__OS2__)
 #define UV_CONST_DIRENT uv__dirent_t
 #else
 #define UV_CONST_DIRENT const uv__dirent_t
+#endif
+
+#if defined(__OS2__)
+#define UV_SORT_CONST_DIRENT_PP const void *
+#else
+#define UV_SORT_CONST_DIRENT_PP const uv__dirent_t **
 #endif
 
 
@@ -543,8 +549,16 @@ static int uv__fs_scandir_filter(UV_CONST_DIRENT* dent) {
 }
 
 
-static int uv__fs_scandir_sort(UV_CONST_DIRENT** a, UV_CONST_DIRENT** b) {
+static int uv__fs_scandir_sort(UV_SORT_CONST_DIRENT_PP a,
+                               UV_SORT_CONST_DIRENT_PP b) {
+#ifndef __OS2__
   return strcmp((*a)->d_name, (*b)->d_name);
+#else
+  const uv__dirent_t **da = (const uv__dirent_t **)a;
+  const uv__dirent_t **db = (const uv__dirent_t **)b;
+
+  return strcmp((*da)->d_name, (*db)->d_name);
+#endif
 }
 
 
