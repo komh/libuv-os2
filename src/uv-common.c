@@ -33,7 +33,11 @@
 #if defined(_WIN32)
 # include <malloc.h> /* malloc */
 #else
-# include <net/if.h> /* if_nametoindex */
+# ifndef __OS2__
+#  include <net/if.h> /* if_nametoindex */
+# else
+#  include <os2compat/net/if.h> /* if_nametoindex */
+# endif
 # include <sys/un.h> /* AF_UNIX, sockaddr_un */
 #endif
 
