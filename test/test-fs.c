@@ -1451,7 +1451,7 @@ TEST_IMPL(fs_fstat) {
   ASSERT(s->st_size == (uint64_t) t.st_size);
   ASSERT(s->st_blksize == (uint64_t) t.st_blksize);
   ASSERT(s->st_blocks == (uint64_t) t.st_blocks);
-#if defined(__APPLE__)
+#if defined(__APPLE__) || defined(__OS2__)
   ASSERT(s->st_atim.tv_sec == t.st_atimespec.tv_sec);
   ASSERT(s->st_atim.tv_nsec == t.st_atimespec.tv_nsec);
   ASSERT(s->st_mtim.tv_sec == t.st_mtimespec.tv_sec);
