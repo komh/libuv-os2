@@ -186,6 +186,13 @@ void uv_pipe_connect(uv_connect_t* req,
   int err;
   int r;
 
+#ifdef __OS2__
+  if (strncmp("\\socket\\", name, 8)) {
+    err = -ENOENT;
+    goto out;
+  }
+#endif
+
   new_sock = (uv__stream_fd(handle) == -1);
 
   if (new_sock) {
