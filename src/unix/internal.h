@@ -54,6 +54,8 @@
 # define reqevents events
 # define rtnevents revents
 # include <sys/poll.h>
+#elif defined(__OS2__)
+# include <os2compat/poll.h>
 #else
 # include <poll.h>
 #endif /* _AIX */

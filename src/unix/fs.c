@@ -44,7 +44,11 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <poll.h>
+#ifndef __OS2__
+# include <poll.h>
+#else
+# include <os2compat/poll.h>
+#endif
 
 #if defined(__DragonFly__)        ||                                      \
     defined(__FreeBSD__)          ||                                      \
