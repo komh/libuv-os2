@@ -129,4 +129,11 @@ static int uv__os2_pipe(int *fds) {
 }
 #define pipe(fds) uv__os2_pipe(fds)
 
+/* OS/2 kLIBC defines IOV_MAX to 1024, but it accepts up to 16 actaully */
+
+#include <sys/syslimits.h>
+
+#undef IOV_MAX
+#define IOV_MAX 16
+
 #endif /* UV_OS2_H */
