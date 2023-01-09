@@ -713,7 +713,8 @@ int uv_sem_trywait(uv_sem_t* sem) {
 #endif /* defined(__APPLE__) && defined(__MACH__) */
 
 
-#if defined(__APPLE__) && defined(__MACH__) || defined(__MVS__)
+#if defined(__APPLE__) && defined(__MACH__) || defined(__MVS__) || \
+    defined(__OS2__)
 
 int uv_cond_init(uv_cond_t* cond) {
   return UV__ERR(pthread_cond_init(cond, NULL));
