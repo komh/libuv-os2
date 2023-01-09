@@ -532,7 +532,10 @@ endif
 if OS2
 uvinclude_HEADERS += include/uv/os2.h
 libuv_la_LDFLAGS += -los2compat
-libuv_la_SOURCES += src/unix/posix-poll.c
+libuv_la_SOURCES += src/unix/no-fsevents.c \
+                    src/unix/no-proctitle.c \
+                    src/unix/os2.c \
+                    src/unix/posix-poll.c
 endif
 
 if OS390
