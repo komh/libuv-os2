@@ -1,0 +1,12 @@
+guide/networking.rst:255: [redirected permanently] https://c-ares.haxx.se to https://c-ares.org/
+guide/utilities.rst:211: [redirected permanently] https://curl.haxx.se/libcurl/ to https://curl.se/libcurl/
+guide/utilities.rst:211: [redirected permanently] https://curl.haxx.se/libcurl/c/libcurl-multi.html to https://curl.se/libcurl/c/libcurl-multi.html
+fs.rst:527: [redirected permanently] https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/get-osfhandle?view=vs-2019 to https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/get-osfhandle?view=msvc-170&viewFallbackFrom=vs-2019
+fs.rst:536: [redirected permanently] https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/open-osfhandle?view=vs-2019 to https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/open-osfhandle?view=msvc-170&viewFallbackFrom=vs-2019
+design.rst:7: [redirected with Found] https://nodejs.org to https://nodejs.org/en/
+guide/introduction.rst:36: [redirected with Found] https://www.nodejs.org to https://nodejs.org/en/
+guide/about.rst:16: [redirected with Found] https://www.sphinx-doc.org to https://www.sphinx-doc.org/en/master/
+guide/networking.rst:180: [redirected permanently] https://www.tldp.org/HOWTO/Multicast-HOWTO-2.html to https://tldp.org/HOWTO/Multicast-HOWTO-2.html
+guide/networking.rst:254: [redirected permanently] https://www.tldp.org/HOWTO/Multicast-HOWTO-6.html#ss6.1 to https://tldp.org/HOWTO/Multicast-HOWTO-6.html#ss6.1
+guide/networking.rst:98: [redirected with Found] https://tools.ietf.org/html/rfc2131 to https://datatracker.ietf.org/doc/html/rfc2131
+fs_event.rst:22: [redirected with Found] https://www.ibm.com/support/knowledgecenter/en/SSLTBW_2.2.0/com.ibm.zos.v2r1.bpxb100/ioc.htm to https://www.ibm.com/docs/en/zos/2.2.0?topic=SSLTBW_2.2.0/com.ibm.zos.v2r1.bpxb100/ioc.htm
