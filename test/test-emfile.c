@@ -50,6 +50,9 @@ TEST_IMPL(emfile) {
    */
   RETURN_SKIP("uv__emfile_trick does not work on this OS");
 #endif
+#ifdef __OS2__
+  RETURN_SKIP("OS/2 does not support setrlimit(RLIMIT_NOFILE)");
+#endif
 
   /* Lower the file descriptor limit and use up all fds save one. */
   limits.rlim_cur = limits.rlim_max = maxfd + 1;
