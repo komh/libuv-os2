@@ -1198,7 +1198,7 @@ static int uv__setsockopt_maybe_char(uv_udp_t* handle,
                                      int val) {
 #if defined(__sun) || defined(_AIX) || defined(__MVS__)
   char arg = val;
-#elif defined(__OpenBSD__)
+#elif defined(__OpenBSD__) || defined(__OS2__)
   unsigned char arg = val;
 #else
   int arg = val;
@@ -1240,7 +1240,7 @@ int uv_udp_set_ttl(uv_udp_t* handle, int ttl) {
  * and use the general uv__setsockopt_maybe_char call on other platforms.
  */
 #if defined(__sun) || defined(_AIX) || defined(__OpenBSD__) || \
-    defined(__MVS__) || defined(__QNX__)
+    defined(__MVS__) || defined(__QNX__) || defined(__OS2__)
 
   return uv__setsockopt(handle,
                         IP_TTL,
