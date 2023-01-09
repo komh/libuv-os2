@@ -41,6 +41,7 @@
 #include <semaphore.h>
 #else
 #include <os2compat/semaphore.h>
+#include <os2compat/poll.h> /* for struct pollfd in uv/posix.h */
 #endif
 #include <sys/param.h> /* MAXHOSTNAMELEN on Linux and the BSDs */
 #endif
@@ -75,6 +76,7 @@
 # include "uv/posix.h"
 #elif defined(__OS2__)
 # include "uv/os2.h"
+# include "uv/posix.h"
 #endif
 
 #ifndef NI_MAXHOST
