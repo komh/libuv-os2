@@ -46,6 +46,11 @@ int uv_pipe_bind(uv_pipe_t* handle, const char* name) {
   int sockfd;
   int err;
 
+#ifdef __OS2__
+  if (strncmp("\\socket\\", name, 8))
+    return -EACCES;
+#endif
+
   pipe_fname = NULL;
 
   /* Already bound? */
