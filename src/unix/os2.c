@@ -136,3 +136,17 @@ void uv_free_interface_addresses(uv_interface_address_t* addresses,
   int count) {
   /* TODO: FIXME */
 }
+
+int uv__random_getrandom(void* buf, size_t buflen) {
+  QWORD qwTime;
+  char *p = buf;
+
+  while (buflen > 0) {
+    DosTmrQueryTime(&qwTime);
+
+    *p++ = (char)(qwTime.ulLo * qwTime.ulHi);
+    buflen--;
+  }
+
+  return 0;
+}
