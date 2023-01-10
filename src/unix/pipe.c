@@ -359,6 +359,7 @@ int uv_pipe_chmod(uv_pipe_t* handle, int mode) {
       mode != (UV_WRITABLE | UV_READABLE))
     return UV_EINVAL;
 
+#ifndef __OS2__
   /* Unfortunately fchmod does not work on all platforms, we will use chmod. */
   name_len = 0;
   r = uv_pipe_getsockname(handle, NULL, &name_len);
@@ -380,6 +381,11 @@ int uv_pipe_chmod(uv_pipe_t* handle, int mode) {
     uv__free(name_buffer);
     return -errno;
   }
+#else
+  /* OS/2 does not support stat() on a socket name. */
+  if (fstat(uv__stream_fd(handle), &pipe_stat) == -1)
+    return -errno;
+#endif
 
   desired_mode = 0;
   if (mode & UV_READABLE)
@@ -389,14 +395,21 @@ int uv_pipe_chmod(uv_pipe_t* handle, int mode) {
 
   /* Exit early if pipe already has desired mode. */
   if ((pipe_stat.st_mode & desired_mode) == desired_mode) {
+#ifndef __OS2__
     uv__free(name_buffer);
+#endif
     return 0;
   }
 
   pipe_stat.st_mode |= desired_mode;
 
+#ifndef __OS2__
   r = chmod(name_buffer, pipe_stat.st_mode);
   uv__free(name_buffer);
+#else
+  /* OS/2 does not support chmod() on a socket name. */
+  r = fchmod(uv__stream_fd(handle), pipe_stat.st_mode);
+#endif
 
   return r != -1 ? 0 : UV__ERR(errno);
 }

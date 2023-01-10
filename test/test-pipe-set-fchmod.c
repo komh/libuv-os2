@@ -30,6 +30,9 @@ TEST_IMPL(pipe_set_chmod) {
 #ifndef _WIN32
   struct stat stat_buf;
 #endif
+#ifdef __OS2__
+  uv_os_fd_t pipe_fd;
+#endif
 
   loop = uv_default_loop();
 
@@ -38,6 +41,10 @@ TEST_IMPL(pipe_set_chmod) {
 
   r = uv_pipe_bind(&pipe_handle, TEST_PIPENAME);
   ASSERT(r == 0);
+
+#ifdef __OS2__
+  ASSERT_EQ(0, uv_fileno((uv_handle_t*)&pipe_handle, &pipe_fd));
+#endif
 
   /* No easy way to test if this works, we will only make sure that the call is
    * successful. */
@@ -48,7 +55,11 @@ TEST_IMPL(pipe_set_chmod) {
   }
   ASSERT(r == 0);
 #ifndef _WIN32
+#ifndef __OS2__
   stat(TEST_PIPENAME, &stat_buf);
+#else
+  fstat(pipe_fd, &stat_buf);
+#endif
   ASSERT(stat_buf.st_mode & S_IRUSR);
   ASSERT(stat_buf.st_mode & S_IRGRP);
   ASSERT(stat_buf.st_mode & S_IROTH);
@@ -57,7 +68,11 @@ TEST_IMPL(pipe_set_chmod) {
   r = uv_pipe_chmod(&pipe_handle, UV_WRITABLE);
   ASSERT(r == 0);
 #ifndef _WIN32
+#ifndef __OS2__
   stat(TEST_PIPENAME, &stat_buf);
+#else
+  fstat(pipe_fd, &stat_buf);
+#endif
   ASSERT(stat_buf.st_mode & S_IWUSR);
   ASSERT(stat_buf.st_mode & S_IWGRP);
   ASSERT(stat_buf.st_mode & S_IWOTH);
@@ -66,7 +81,11 @@ TEST_IMPL(pipe_set_chmod) {
   r = uv_pipe_chmod(&pipe_handle, UV_WRITABLE | UV_READABLE);
   ASSERT(r == 0);
 #ifndef _WIN32
+#ifndef __OS2__
   stat(TEST_PIPENAME, &stat_buf);
+#else
+  fstat(pipe_fd, &stat_buf);
+#endif
   ASSERT(stat_buf.st_mode & S_IRUSR);
   ASSERT(stat_buf.st_mode & S_IRGRP);
   ASSERT(stat_buf.st_mode & S_IROTH);
