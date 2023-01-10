@@ -329,7 +329,13 @@ int process_wait(process_info_t* vec, int n, int timeout) {
     /* Timeout. Kill all the children. */
     for (i = 0; i < n; i++) {
       p = &vec[i];
+#ifndef __OS2__
       kill(p->pid, SIGTERM);
+#else
+      /* OS/2 exec() spawns a child process additionaly while a parent process
+       * is living. */
+      kill(p->pid + 1, SIGTERM);
+#endif
     }
     retval = -2;
   }
@@ -419,7 +425,13 @@ char* process_get_name(process_info_t *p) {
 
 /* Terminate process `p`. */
 int process_terminate(process_info_t *p) {
+#ifndef __OS2__
   return kill(p->pid, SIGTERM);
+#else
+  /* OS/2 exec() spawns a child process additionaly while a parent process
+   * is living. */
+  return kill(p->pid + 1, SIGTERM);
+#endif
 }
 
 

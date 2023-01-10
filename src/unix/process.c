@@ -1062,7 +1062,13 @@ error:
 
 
 int uv_process_kill(uv_process_t* process, int signum) {
+#ifndef __OS2__
   return uv_kill(process->pid, signum);
+#else
+  /* OS/2 exec() spawns a child process additionaly while a parent process
+   * is living. */
+  return uv_kill(process->pid + 1, signum);
+#endif
 }
 
 
