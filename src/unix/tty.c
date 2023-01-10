@@ -412,7 +412,7 @@ uv_handle_type uv_guess_handle(uv_file file) {
 
   len = sizeof(ss);
   if (getsockname(file, (struct sockaddr*) &ss, &len)) {
-#if defined(_AIX)
+#if defined(_AIX) || defined(__OS2__)
     /* On aix receiving RST from TCP instead of FIN immediately puts fd into
      * an error state. In such case getsockname will return EINVAL, even if
      * sockaddr_storage is valid.
