@@ -25,6 +25,9 @@
 #include "uv.h"
 #include "internal.h"
 
+#include <process.h>
+
+
 uint64_t uv__hrtime(uv_clocktype_t type) {
   return gethrtime();
 }
@@ -137,15 +140,18 @@ void uv_free_interface_addresses(uv_interface_address_t* addresses,
   /* TODO: FIXME */
 }
 
+
 int uv__random_getrandom(void* buf, size_t buflen) {
+  static unsigned seed = 'O' | ('S' << 8) | ('/' << 16) | ('2' << 24);
+
+  int pid = getpid();
   QWORD qwTime;
   char *p = buf;
 
-  while (buflen > 0) {
+  while (buflen-- > 0) {
     DosTmrQueryTime(&qwTime);
-
-    *p++ = (char)(qwTime.ulLo * qwTime.ulHi);
-    buflen--;
+    seed *= pid;
+    *p++ = (char)(qwTime.ulLo * rand_r(&seed));
   }
 
   return 0;
