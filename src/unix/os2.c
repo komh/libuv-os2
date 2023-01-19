@@ -128,19 +128,6 @@ int uv_cpu_info(uv_cpu_info_t** cpu_infos, int* count) {
 }
 
 
-int uv_interface_addresses(uv_interface_address_t** addresses, int* count) {
-  /* TODO: FIXME */
-
-  return -ENOSYS;
-}
-
-
-void uv_free_interface_addresses(uv_interface_address_t* addresses,
-  int count) {
-  /* TODO: FIXME */
-}
-
-
 int uv__random_getrandom(void* buf, size_t buflen) {
   static unsigned seed = 'O' | ('S' << 8) | ('/' << 16) | ('2' << 24);
 

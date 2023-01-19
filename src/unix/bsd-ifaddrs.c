@@ -25,7 +25,11 @@
 #include <errno.h>
 #include <stddef.h>
 
+#ifndef __OS2__
 #include <ifaddrs.h>
+#else
+#include <os2compat/ifaddrs.h>
+#endif
 #include <net/if.h>
 #if !defined(__CYGWIN__) && !defined(__MSYS__) && !defined(__GNU__)
 #include <net/if_dl.h>
@@ -50,7 +54,7 @@ static int uv__ifaddr_exclude(struct ifaddrs *ent, int exclude_type) {
     return (ent->ifa_addr->sa_family != AF_LINK);
 #endif
 #if defined(__APPLE__) || defined(__FreeBSD__) || defined(__DragonFly__) || \
-    defined(__HAIKU__)
+    defined(__HAIKU__) || defined(__OS2__)
   /*
    * On BSD getifaddrs returns information related to the raw underlying
    * devices. We're not interested in this information.
