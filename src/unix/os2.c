@@ -38,16 +38,16 @@ int uv_exepath(char* buffer, size_t* size) {
   char exepath[PATH_MAX];
 
   if (buffer == NULL || size == NULL || *size == 0)
-    return -EINVAL;
+    return UV_EINVAL;
 
   if (_execname(path, sizeof(path)) == -1)
-    return -EIO;
+    return UV_EIO;
 
   /* Get a real name not an upper-cased name, and convert back-slashes to
    * slashes.
    */
   if (!realpath(path, exepath))
-    return -errno;
+    return UV__ERR(errno);
 
   /* Copy to buffer at most *size bytes. */
   strncpy(buffer, exepath, *size);
@@ -95,7 +95,7 @@ int uv_resident_set_memory(size_t* rss) {
 
   if (DosQuerySysInfo(QSV_TOTRESMEM, QSV_TOTRESMEM, &resident_mem,
                       sizeof(resident_mem)))
-    return -EINVAL;
+    return UV_EINVAL;
 
   *rss = resident_mem;
 
@@ -107,7 +107,7 @@ int uv_uptime(double* uptime) {
   ULONG ms;
 
   if (DosQuerySysInfo(QSV_MS_COUNT, QSV_MS_COUNT, &ms, sizeof(ms)))
-    return -EINVAL;
+    return UV_EINVAL;
 
   *uptime = ms / 1000;
 
@@ -124,7 +124,7 @@ void uv_loadavg(double avg[3]) {
 int uv_cpu_info(uv_cpu_info_t** cpu_infos, int* count) {
   /* TODO: FIXME */
 
-  return -ENOSYS;
+  return UV_ENOSYS;
 }
 
 
