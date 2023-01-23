@@ -30,6 +30,11 @@
 /* Cygwin crashes or hangs in socket() with too many AF_INET sockets.  */
 /* IBMi PASE timeout with too many AF_INET sockets.  */
 static uv_udp_t sockets[1250];
+#elif defined(__OS2__)
+/* OS/2 socket APIs such as socket() and bind() return ENOBUF with too many
+ * sockets.
+ */
+static uv_udp_t sockets[800];
 #else
 static uv_udp_t sockets[2500];
 #endif
