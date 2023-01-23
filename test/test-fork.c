@@ -643,6 +643,9 @@ static void assert_run_work(uv_loop_t* const loop) {
 TEST_IMPL(fork_threadpool_queue_work_simple) {
   /* The threadpool works in a child process. */
 
+#ifdef __OS2__
+  RETURN_SKIP("OS/2 fork() does not support threads");
+#else
   pid_t child_pid;
   uv_loop_t loop;
 
@@ -673,6 +676,7 @@ TEST_IMPL(fork_threadpool_queue_work_simple) {
 
   MAKE_VALGRIND_HAPPY();
   return 0;
+#endif
 }
 #endif /* !__MVS__ */
 
