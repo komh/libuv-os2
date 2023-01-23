@@ -94,7 +94,7 @@ TEST_IMPL(platform_output) {
   printf("uv_available_parallelism: %u\n", par);
 
   err = uv_cpu_info(&cpus, &count);
-#if defined(__CYGWIN__) || defined(__MSYS__)
+#if defined(__CYGWIN__) || defined(__MSYS__) || defined(__OS2__)
   ASSERT(err == UV_ENOSYS);
 #else
   ASSERT(err == 0);
