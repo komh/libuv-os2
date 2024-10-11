@@ -49,6 +49,7 @@
 #include <stdint.h> /* integer types */
 #include <sys/un.h> /* sa_family_t */
 
+#ifndef _SS_MAXSIZE
 /* struct sockaddr_storage from
  * http://pubs.opengroup.org/onlinepubs/009696699/basedefs/sys/socket.h.html.
  */
@@ -80,6 +81,7 @@ struct sockaddr_storage {
          * __ss_pad1, __ss_align fields is 112.
          */
 };
+#endif
 
 struct in6_addr
 {
