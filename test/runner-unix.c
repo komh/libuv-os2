@@ -40,6 +40,11 @@
 #include <sys/time.h>
 #include <pthread.h>
 
+#ifdef __OS2__
+#include <fcntl.h>
+#include <process.h>
+#endif
+
 extern char** environ;
 
 static void closefd(int fd) {
@@ -136,6 +141,7 @@ int process_start(char* name, char* part, process_info_t* p, int is_helper) {
   p->terminated = 0;
   p->status = 0;
 
+#ifndef __OS2__
   pid = fork();
 
   if (pid < 0) {
@@ -153,6 +159,38 @@ int process_start(char* name, char* part, process_info_t* p, int is_helper) {
     perror("execve()");
     _exit(127);
   }
+#else
+  {
+    int saved_stdout;
+    int saved_stderr;
+
+    if (is_helper) {
+      if (fcntl(pipefd[0], F_SETFD,
+                fcntl(pipefd[0], F_GETFD) | FD_CLOEXEC) < 0) {
+        perror("fcntl");
+        return -1;
+      }
+    }
+
+    saved_stdout = dup(STDOUT_FILENO);
+    saved_stderr = dup(STDERR_FILENO);
+
+    dup2(stdout_fd, STDOUT_FILENO);
+    dup2(stdout_fd, STDERR_FILENO);
+
+    pid = spawnve(P_NOWAIT, args[0], args, environ);
+
+    dup2(saved_stdout, STDOUT_FILENO);
+    dup2(saved_stderr, STDERR_FILENO);
+    close(saved_stdout);
+    close(saved_stderr);
+
+    if (pid < 0) {
+      perror("spawnve");
+      return -1;
+    }
+  }
+#endif
 
   /* parent */
   p->pid = pid;
@@ -329,13 +367,7 @@ int process_wait(process_info_t* vec, int n, int timeout) {
     /* Timeout. Kill all the children. */
     for (i = 0; i < n; i++) {
       p = &vec[i];
-#ifndef __OS2__
       kill(p->pid, SIGTERM);
-#else
-      /* OS/2 exec() spawns a child process additionaly while a parent process
-       * is living. */
-      kill(p->pid + 1, SIGTERM);
-#endif
     }
     retval = -2;
   }
@@ -425,13 +457,7 @@ char* process_get_name(process_info_t *p) {
 
 /* Terminate process `p`. */
 int process_terminate(process_info_t *p) {
-#ifndef __OS2__
   return kill(p->pid, SIGTERM);
-#else
-  /* OS/2 exec() spawns a child process additionaly while a parent process
-   * is living. */
-  return kill(p->pid + 1, SIGTERM);
-#endif
 }
 
 
