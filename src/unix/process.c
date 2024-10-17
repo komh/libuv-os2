@@ -790,6 +790,150 @@ error:
 }
 #endif
 
+#ifdef __OS2__
+static int uv__spawn_search_file(char *file_path, size_t file_path_size,
+                                 const char *file, char **env,
+                                 const char *cwd) {
+  const char emxpath_name[] = "EMXPATH=";
+  const char path_name[] = "PATH=";
+  const char *emxpath = NULL;
+  const char *path = NULL;
+  unsigned flags = _SEARCHENV2_F_EXEC_FILE;
+  const char *exe_ext = ".exe";
+
+  if (env == NULL)
+    env = environ;
+
+  while (*env) {
+    if (strncmp(*env, emxpath_name, sizeof(emxpath_name) - 1) == 0)
+      emxpath = (*env) + sizeof(emxpath_name) - 1;
+    else if (strncmp(*env, path_name, sizeof(path_name) - 1) == 0)
+      path = (*env) + sizeof(path_name) - 1;
+    env++;
+  }
+
+  if (cwd) {
+    flags |= _SEARCHENV2_F_SKIP_CURDIR;
+
+    if (_searchenv2_value(cwd, file, flags, exe_ext, file_path,
+                          file_path_size) == 0)
+        return 0;
+  }
+
+  if (_searchenv2_value(emxpath, file, flags, exe_ext, file_path,
+                        file_path_size) == -1) {
+    if (_searchenv2_value(path, file, flags | _SEARCHENV2_F_SKIP_CURDIR,
+                          exe_ext, file_path, file_path_size) == -1)
+      return UV__ERR(errno);
+  }
+
+  return 0;
+}
+
+static int uv__spawn_and_init_child_spawn2(
+    const uv_process_options_t* options,
+    int stdio_count,
+    int (*pipes)[2],
+    pid_t* pid) {
+  int std_fds[stdio_count * 2 + 1];
+  int *std_fd = std_fds;
+  int close_fds[stdio_count];
+  int use_fd;
+  int fd;
+  char file_path[PATH_MAX];
+  int uverr;
+
+  if (!uv__os2_is_spawn2_mode())
+    return UV_ENOSYS;
+
+  if (options->flags & (UV_PROCESS_SETUID | UV_PROCESS_SETGID))
+    return UV_ENOSYS;
+
+  if (options->flags & UV_PROCESS_DETACHED)
+    return UV_ENOSYS;
+
+  /* First duplicate low numbered fds, since it's not safe to duplicate them,
+   * they could get replaced. Example: swapping stdout and stderr; without
+   * this fd 2 (stderr) would be duplicated into fd 1, thus making both
+   * stdout and stderr go to the same fd, which was not the intention. */
+  for (fd = 0; fd < stdio_count; fd++) {
+    use_fd = pipes[fd][1];
+    if (use_fd < 0 || use_fd >= fd)
+      continue;
+
+    use_fd = fcntl(use_fd, F_DUPFD, stdio_count);
+    if (use_fd < 0)
+      return UV__ERR(errno);
+
+    pipes[fd][1] = use_fd;
+
+    if (uv__cloexec(use_fd, 1) < 0)
+      return UV__ERR(errno);
+  }
+
+  /* Second, move the descriptors into their respective places */
+  for (fd = 0; fd < stdio_count; fd++) {
+    close_fds[fd] = -1;
+    use_fd = pipes[fd][1];
+    if (use_fd < 0) {
+      if (fd >= 3)
+        continue;
+      else {
+        /* If ignored, redirect to (or from) /dev/null, */
+        use_fd = open("/dev/null",
+                      (fd == 0 ? O_RDONLY : O_RDWR) | O_NOINHERIT);
+        if (use_fd < 0) {
+          uverr = UV__ERR(errno);
+
+          while (--fd >= 0) {
+            use_fd = close_fds[fd];
+            if (use_fd != -1)
+              uv__close_nocheckstdio(use_fd);
+          }
+
+          return uverr;
+        }
+
+        close_fds[fd] = use_fd;
+      }
+    }
+
+    *std_fd++ = use_fd;
+    *std_fd++ = fd;
+
+    /* Make sure the fd is marked as non-blocking (state shared between child
+     * and parent). */
+    uv__nonblock_fcntl(use_fd, 0);
+
+    /* Make sure stdios are inherited by a child. P_2_THREADSAFE may fail
+     * without this. For example, `spawn_closed_process_io' test. */
+    uv__cloexec(fd, 0);
+  }
+
+  *std_fd = -1;
+
+  uverr = uv__spawn_search_file(file_path, sizeof(file_path), options->file,
+                                options->env, options->cwd);
+  if (uverr == 0) {
+    *pid = uv__os2_spawn2(P_NOWAIT | P_2_XREDIR | P_2_NOINHERIT |
+                          (options->cwd ? P_2_THREADSAFE : 0),
+                          file_path, (const char * const *)options->args,
+                          options->cwd, (const char * const *)options->env,
+                          std_fds);
+    if (*pid == -1)
+      uverr = UV__ERR(errno);
+  }
+
+  for (fd = 0; fd < stdio_count; fd++) {
+    use_fd = close_fds[fd];
+    if (use_fd != -1)
+      uv__close_nocheckstdio(use_fd);
+  }
+
+  return uverr;
+}
+#endif
+
 static int uv__spawn_and_init_child_fork(const uv_process_options_t* options,
                                          int stdio_count,
                                          int (*pipes)[2],
@@ -871,6 +1015,10 @@ static int uv__spawn_and_init_child(
   if (err != UV_ENOSYS)
     return err;
 
+#elif defined(__OS2__)
+  err = uv__spawn_and_init_child_spawn2(options, stdio_count, pipes, pid);
+  if (err != UV_ENOSYS)
+    return err;
 #endif
 
   /* This pipe is used by the parent to wait until
@@ -1065,6 +1213,9 @@ int uv_process_kill(uv_process_t* process, int signum) {
 #ifndef __OS2__
   return uv_kill(process->pid, signum);
 #else
+  if (uv__os2_is_spawn2_mode())
+    return uv_kill(process->pid, signum);
+
   /* OS/2 exec() spawns a child process additionaly while a parent process
    * is living. */
   return uv_kill(process->pid + 1, signum);

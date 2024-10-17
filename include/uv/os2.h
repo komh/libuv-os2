@@ -151,4 +151,26 @@ int uv__os2_recvmsg(int s, struct msghdr *msg, int flags);
 int uv__os2_sendfd(int s, struct msghdr *msg, int flags);
 int uv__os2_recvfd(int s, struct msghdr *msg, int flags);
 
+/* LIBCx provides spawn2() which is an improved function of spawn*(),
+ * and wait*() functions for it
+ */
+
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <libcx/spawn2.h>
+
+pid_t uv__os2_wait(int *statusp);
+#define wait(s) uv__os2_wait(s)
+
+pid_t uv__os2_waitid(idtype_t idtype, id_t id, siginfo_t *infop, int options);
+#define waitid(t, id, info, o) uv__os2_waitid(t, id, inf, o)
+
+pid_t uv__os2_waitpid(pid_t pid, int *statusp, int options);
+#define waitpid(p, s, o) uv__os2_waitpid(p, s, o)
+
+int uv__os2_is_spawn2_mode(void);
+int uv__os2_spawn2(int mode, const char *name, const char * const argv[],
+                   const char *cwd, const char * const envp[],
+                   const int stdfds[]);
+
 #endif /* UV_OS2_H */
