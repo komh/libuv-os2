@@ -1044,7 +1044,7 @@ TEST_IMPL(kill) {
   init_process_options("spawn_helper4", kill_cb);
 
   /* Verify that uv_spawn() resets the signal disposition. */
-#ifndef _WIN32
+#if !defined(_WIN32) && !defined(__OS2__)
   {
     sigset_t set;
     sigemptyset(&set);
@@ -1057,7 +1057,7 @@ TEST_IMPL(kill) {
   r = uv_spawn(uv_default_loop(), &process, &options);
   ASSERT(r == 0);
 
-#ifndef _WIN32
+#if !defined(_WIN32) && !defined(__OS2__)
   {
     sigset_t set;
     sigemptyset(&set);
