@@ -68,7 +68,14 @@ static void pipe_client_connect_cb(uv_connect_t* req, int status) {
 
   len = sizeof buf;
   r = uv_pipe_getsockname(&pipe_client, buf, &len);
+#ifndef __OS2__
   ASSERT(r == 0 && len == 0);
+#else
+  /* On OS/2, a connected socket is assigned a name even if it is AF_UNIX
+   * address family and not bind()ed. After all, len !=0 in spite of r == 0.
+   */
+  ASSERT(r == 0);
+#endif
 
   pipe_client_connect_cb_called++;
 
@@ -142,7 +149,14 @@ TEST_IMPL(pipe_getsockname) {
 
   len = sizeof buf;
   r = uv_pipe_getsockname(&pipe_client, buf, &len);
+#ifndef __OS2__
   ASSERT(r == 0 && len == 0);
+#ese
+  /* On OS/2, a connected socket is assigned a name even if it is AF_UNIX
+   * address family and not bind()ed. After all, len !=0 in spite of r == 0.
+   */
+  ASSERT(r == 0);
+#endif
 
   len = sizeof buf;
   r = uv_pipe_getpeername(&pipe_client, buf, &len);
