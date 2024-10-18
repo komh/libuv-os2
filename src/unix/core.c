@@ -665,6 +665,15 @@ int uv__cloexec(int fd, int set) {
     r = fcntl(fd, F_SETFD, flags);
   while (r == -1 && errno == EINTR);
 
+#ifdef __OS2__
+  if (r == -1 && errno == ENOTSUP) {
+    struct stat st;
+
+    if (fstat(fd, &st) == 0 && S_ISDIR(st.st_mode))
+      r = 0; /* FIXME: Implement uv__cloexec() correctly for a directory */
+  }
+#endif
+
   if (r)
     return UV__ERR(errno);
 
