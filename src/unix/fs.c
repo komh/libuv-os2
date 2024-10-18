@@ -521,7 +521,7 @@ done:
   req->bufs = NULL;
   req->nbufs = 0;
 
-#ifdef __PASE__
+#if defined(__PASE__) || defined(__OS2__)
   /* PASE returns EOPNOTSUPP when reading a directory, convert to EISDIR */
   if (result == -1 && errno == EOPNOTSUPP) {
     struct stat buf;
