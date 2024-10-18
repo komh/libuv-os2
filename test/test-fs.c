@@ -2634,6 +2634,10 @@ TEST_IMPL(fs_utime_round) {
   uv_fs_req_cleanup(&req);
   ASSERT_EQ(0, uv_fs_close(loop, &req, r, NULL));
 
+#ifdef __OS2__
+    RETURN_SKIP("utime on OS/2 works correctly since 1980 year");
+#endif
+
   atime = mtime = -14245440.25;  /* 1969-07-20T02:56:00.25Z */
 
   r = uv_fs_utime(NULL, &req, path, atime, mtime, NULL);
