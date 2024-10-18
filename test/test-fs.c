@@ -3654,7 +3654,12 @@ static void thread_main(void* arg) {
       ASSERT(result > 0 && result <= nbytes);
     }
 
+#ifndef __OS2__
     pthread_kill(ctx->pid, SIGUSR1);
+#else
+    /* On OS/2, pthread_kill() supports only signal no. 0. */
+    kill(getpid(), SIGUSR1);
+#endif
     size -= result;
     data += result;
   }
