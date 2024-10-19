@@ -22,6 +22,12 @@
 #ifndef UV_OS2_H
 #define UV_OS2_H
 
+/* Include all the OS/2 headers */
+#define OS2EMX_PLAIN_CHAR
+#define INCL_BASE
+#define INCL_PM
+#include <os2.h>
+
 /* OS/2 lacks getaddrinfo(), freeaddrinfo(), getnameinfo() and socklen_t */
 
 #include <os2compat/sys/socket.h>

@@ -19,9 +19,6 @@
  * IN THE SOFTWARE.
  */
 
-#define INCL_DOS
-#include <os2.h>
-
 #include "uv.h"
 #include "internal.h"
 

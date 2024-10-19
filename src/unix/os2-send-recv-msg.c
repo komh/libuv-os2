@@ -19,11 +19,6 @@
  * IN THE SOFTWARE.
  */
 
-#define OS2EMX_PLAIN_CHAR
-#define INCL_DOS
-#define INCL_DOSERRORS
-#include <os2.h>
-
 #include "uv.h"
 #include "internal.h"
 
