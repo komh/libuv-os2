@@ -843,9 +843,6 @@ static int uv__spawn_and_init_child_spawn2(
   char file_path[PATH_MAX];
   int uverr;
 
-  if (!uv__os2_is_spawn2_mode())
-    return UV_ENOSYS;
-
   if (options->flags & (UV_PROCESS_SETUID | UV_PROCESS_SETGID))
     return UV_ENOSYS;
 
@@ -1016,9 +1013,8 @@ static int uv__spawn_and_init_child(
     return err;
 
 #elif defined(__OS2__)
-  err = uv__spawn_and_init_child_spawn2(options, stdio_count, pipes, pid);
-  if (err != UV_ENOSYS)
-    return err;
+  if (uv__os2_is_spawn2_mode())
+    return uv__spawn_and_init_child_spawn2(options, stdio_count, pipes, pid);
 #endif
 
   /* This pipe is used by the parent to wait until
