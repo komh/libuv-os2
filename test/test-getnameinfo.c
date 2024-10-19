@@ -96,7 +96,10 @@ TEST_IMPL(getnameinfo_basic_ip6) {
 #if defined(__QEMU__)
   RETURN_SKIP("Test does not currently work in QEMU");
 #endif
-  
+#if defined(__OS2__)
+  RETURN_SKIP("IPv6 is not supported on OS/2");
+#endif
+
   int r;
 
   r = uv_ip6_addr(address_ip6, port, &addr6);
