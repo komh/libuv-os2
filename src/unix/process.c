@@ -844,7 +844,7 @@ static int uv__spawn_and_init_child_spawn2(
   int uverr;
 
   if (options->flags & (UV_PROCESS_SETUID | UV_PROCESS_SETGID))
-    return UV_ENOSYS;
+    return UV_ENOTSUP;  /* As Windows does */
 
   /* First duplicate low numbered fds, since it's not safe to duplicate them,
    * they could get replaced. Example: swapping stdout and stderr; without
