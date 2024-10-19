@@ -846,9 +846,6 @@ static int uv__spawn_and_init_child_spawn2(
   if (options->flags & (UV_PROCESS_SETUID | UV_PROCESS_SETGID))
     return UV_ENOSYS;
 
-  if (options->flags & UV_PROCESS_DETACHED)
-    return UV_ENOSYS;
-
   /* First duplicate low numbered fds, since it's not safe to duplicate them,
    * they could get replaced. Example: swapping stdout and stderr; without
    * this fd 2 (stderr) would be duplicated into fd 1, thus making both
@@ -912,9 +909,15 @@ static int uv__spawn_and_init_child_spawn2(
   uverr = uv__spawn_search_file(file_path, sizeof(file_path), options->file,
                                 options->env, options->cwd);
   if (uverr == 0) {
-    *pid = uv__os2_spawn2(P_NOWAIT | P_2_XREDIR | P_2_NOINHERIT |
-                          (options->cwd ? P_2_THREADSAFE : 0),
-                          file_path, (const char * const *)options->args,
+    int mode = P_NOWAIT | P_2_XREDIR | P_2_NOINHERIT;
+
+    if (options->cwd)
+      mode |= P_2_THREADSAFE;
+
+    if (options->flags & UV_PROCESS_DETACHED)
+      mode |= P_UNRELATED | P_2_THREADSAFE;
+
+    *pid = uv__os2_spawn2(mode, file_path, (const char * const *)options->args,
                           options->cwd, (const char * const *)options->env,
                           std_fds);
     if (*pid == -1)
