@@ -253,6 +253,61 @@ static void uv__write_errno(int error_fd) {
 
 
 #if !(defined(__APPLE__) && (TARGET_OS_TV || TARGET_OS_WATCH))
+#ifdef __OS2__
+/* Find pid of an execvp()ed child */
+static int uv__os2_find_execvp_child_pid(pid_t pid) {
+#define BUF_SIZE_DELTA  (32 * 1024)
+  char *buf = NULL;
+  int buf_size = 0;
+  int child_pid = -1;
+  ULONG rc;
+
+  do {
+    uv__free(buf);
+    buf_size += BUF_SIZE_DELTA;
+    buf = uv__malloc(buf_size);
+    if (buf == NULL)
+      return -1;
+    rc = DosQuerySysState(QS_PROCESS, 0, 0, 0, buf, buf_size);
+  } while (rc == ERROR_BUFFER_OVERFLOW);
+
+  if (rc == 0) {
+    QSPREC *pproc = ((QSPTRREC *)buf)->pProcRec;
+
+    /* We have only one child. Find it */
+    while (pproc && pproc->RecType == 1) {
+      if (pproc->ppid == pid) {
+        child_pid = pproc->pid;
+        break;
+      }
+      pproc = (QSPREC *)(pproc->pThrdRec + pproc->cTCB);
+    }
+  }
+
+  uv__free(buf);
+
+  return child_pid;
+}
+
+/* On OS/2 execvp() does not overlay a parent process. Instead it executes
+ * a child additionaly and wait for a child to end. Thus, kill() cannot
+ * terminate a child with pid returned by fork().
+ * If kill() a parent with the pid, then an execvp()ed child would be a zombie
+ * process. Therefore, it's necessary to terminate a child when a parent
+ * ends.
+ */
+static VOID APIENTRY uv__os2_exit_for_execvp(ULONG exit_code) {
+  pid_t child_pid;
+
+  /* We're now exiting. If a child is still running, kill it. */
+  child_pid = uv__os2_find_execvp_child_pid(getpid());
+  if (child_pid != -1)
+    kill(child_pid, SIGTERM);
+
+  DosExitList(EXLST_EXIT, NULL);
+}
+#endif
+
 /* execvp is marked __WATCHOS_PROHIBITED __TVOS_PROHIBITED, so must be
  * avoided. Since this isn't called on those targets, the function
  * doesn't even need to be defined for them.
@@ -379,6 +434,10 @@ static void uv__process_child_init(const uv_process_options_t* options,
   sigemptyset(&signewset);
   if (sigprocmask(SIG_SETMASK, &signewset, NULL) != 0)
     abort();
+
+#ifdef __OS2__
+  DosExitList(EXLST_ADD | 0x0100, (PFNEXITLIST)uv__os2_exit_for_execvp);
+#endif
 
 #ifdef __MVS__
   execvpe(options->file, options->args, environ);
@@ -1209,16 +1268,7 @@ error:
 
 
 int uv_process_kill(uv_process_t* process, int signum) {
-#ifndef __OS2__
   return uv_kill(process->pid, signum);
-#else
-  if (uv__os2_is_spawn2_mode())
-    return uv_kill(process->pid, signum);
-
-  /* OS/2 exec() spawns a child process additionaly while a parent process
-   * is living. */
-  return uv_kill(process->pid + 1, signum);
-#endif
 }
 
 
