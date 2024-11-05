@@ -872,11 +872,23 @@ static int uv__spawn_search_file(char *file_path, size_t file_path_size,
   }
 
   if (cwd) {
-    flags |= _SEARCHENV2_F_SKIP_CURDIR;
+    const char *fpath = file;
+    char merged_path[_MAX_PATH];
 
-    if (_searchenv2_value(cwd, file, flags, exe_ext, file_path,
-                          file_path_size) == 0)
-        return 0;
+    if (_fnisrel(fpath)) {
+        /* FIXME: _makepath() truncates a path to _MAX_PATH chars. */
+        _makepath(merged_path, NULL, cwd, fpath, NULL);
+        fpath = merged_path;
+    }
+
+    strncpy(file_path, fpath, file_path_size);
+    file_path[file_path_size - 1] = 0;
+
+    if (_searchenv2_one_file(file_path, file_path_size, strlen(file_path),
+                             flags, exe_ext) == 0)
+      return 0;
+
+    flags |= _SEARCHENV2_F_SKIP_CURDIR;
   }
 
   if (_searchenv2_value(emxpath, file, flags, exe_ext, file_path,
