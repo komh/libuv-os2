@@ -179,4 +179,15 @@ int uv__os2_spawn2(int mode, const char *name, const char * const argv[],
                    const char *cwd, const char * const envp[],
                    const int stdfds[]);
 
+/* Platform-specific definitions for UV_FS_EVENT support. */
+#define UV_PLATFORM_FS_EVENT_FIELDS                                           \
+  int tid;                                                                    \
+  HEV refresh;                                                                \
+  int quit;                                                                   \
+  uv__io_t fs_watcher;                                                        \
+  int sync_fds[2];                                                            \
+  const char *name;                                                           \
+  int event;                                                                  \
+  int status;
+
 #endif /* UV_OS2_H */
