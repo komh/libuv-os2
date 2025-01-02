@@ -542,6 +542,10 @@ TEST_IMPL(fork_fs_events_file_parent_child) {
    * same events as the parent.
    */
   return 0;
+#elif defined(__OS2__)
+  /* OS/2 implementation uses a thread internally. However, fork() on OS/2
+     does not support threads in the parent. */
+  RETURN_SKIP("OS/2 fork() does not support threads");
 #else
   /* Establishing a started fs events watcher in the parent should
      still work in the child. */
