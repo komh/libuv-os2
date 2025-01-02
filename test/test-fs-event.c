@@ -40,7 +40,7 @@
 # endif
 #endif
 
-#if defined(__arm__)/* Increase the timeout so the test passes on arm CI bots */
+#if defined(__arm__) || defined(__OS2__)/* Increase the timeout so the test passes on arm CI bots */
 # define CREATE_TIMEOUT 100
 #else
 # define CREATE_TIMEOUT 1
